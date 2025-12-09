@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -11,4 +5,222 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Accounts {
+  id                                                       String             @id
+  email                                                    String             @unique
+  password                                                 String
+  type                                                     String
+  status                                                   String
+  balance                                                  Int
+  documentNumber                                           String             @unique @db.VarChar(14)
+  phoneNumber                                              String
+  address                                                  String
+  city                                                     String
+  state                                                    String
+  zipCode                                                  String
+  country                                                  String
+  birthDate                                                DateTime
+  createdAt                                                DateTime           @default(now())
+  updatedAt                                                DateTime
+  deletedAt                                                DateTime?
+  isDeleted                                                Boolean            @default(false)
+  firstName                                                String
+  lastName                                                 String
+  approvedByUserId                                         String?
+  Users_Accounts_approvedByUserIdToUsers                   Users?             @relation("Accounts_approvedByUserIdToUsers", fields: [approvedByUserId], references: [id])
+  BankAccounts                                             BankAccounts[]
+  Cards                                                    Cards[]
+  Movements                                                Movements[]
+  Payments                                                 Payments[]
+  PixKeys                                                  PixKeys[]
+  Transactions_Transactions_destinationAccountIdToAccounts Transactions[]     @relation("Transactions_destinationAccountIdToAccounts")
+  Transactions_Transactions_sourceAccountIdToAccounts      Transactions[]     @relation("Transactions_sourceAccountIdToAccounts")
+  Users_Users_accountIdToAccounts                          Users[]            @relation("Users_accountIdToAccounts")
+  CardTransactions                                         CardTransactions[] @relation("CardTransactions")
+}
+
+model Agency {
+  id             String         @id
+  name           String
+  address        String
+  city           String
+  state          String
+  zipCode        String
+  country        String
+  phoneNumber    String
+  email          String         @unique
+  documentNumber String         @unique @db.VarChar(14)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime
+  deletedAt      DateTime?
+  isDeleted      Boolean        @default(false)
+  BankAccounts   BankAccounts[]
+  Users          Users[]
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model BankAccounts {
+  id           String   @id
+  number       String   @unique
+  digit        String   @unique
+  agencyNumber String
+  agencyDigit  String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime
+  accountId    String
+  agencyId     String?
+  Accounts     Accounts @relation(fields: [accountId], references: [id])
+  Agency       Agency?  @relation(fields: [agencyId], references: [id])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model BilletPayments {
+  id              String    @id
+  barcode         String
+  expirationDate  DateTime
+  barcodeImage    String
+  barcodeImageUrl String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime
+  deletedAt       DateTime?
+  isDeleted       Boolean   @default(false)
+  paymentId       String
+  Payments        Payments  @relation(fields: [paymentId], references: [id])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model CardTransactions {
+  id          String      @id
+  type        String
+  amount      Int
+  description String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime
+  cardId      String      @unique
+  Cards       Cards       @relation(fields: [cardId], references: [id])
+  Movements   Movements[]
+  Accounts    Accounts[]  @relation("CardTransactions")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Cards {
+  id               String            @id
+  name             String
+  number           String
+  cvv              String
+  password         String
+  expirationDate   DateTime
+  type             String
+  status           String
+  creditLimit      Int
+  availableCredit  Int
+  usedCredit       Int
+  totalCredit      Int
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime
+  deletedAt        DateTime?
+  isDeleted        Boolean           @default(false)
+  accountId        String
+  CardTransactions CardTransactions?
+  Accounts         Accounts          @relation(fields: [accountId], references: [id])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Movements {
+  id                String            @id
+  type              String
+  amount            Int
+  description       String
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime
+  accountId         String
+  transactionId     String?
+  cardTransactionId String?
+  Accounts          Accounts          @relation(fields: [accountId], references: [id])
+  CardTransactions  CardTransactions? @relation(fields: [cardTransactionId], references: [id])
+  Transactions      Transactions?     @relation(fields: [transactionId], references: [id])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Payments {
+  id             String           @id
+  amount         Int
+  description    String
+  status         String
+  type           String
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime
+  deletedAt      DateTime?
+  isDeleted      Boolean          @default(false)
+  accountId      String
+  BilletPayments BilletPayments[]
+  Accounts       Accounts         @relation(fields: [accountId], references: [id])
+  PixPayments    PixPayments[]
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model PixKeys {
+  id           String    @id
+  key          String    @unique
+  type         String
+  status       String
+  description  String
+  qrCodeUrl    String?
+  qrCodeBase64 String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime
+  deletedAt    DateTime?
+  isDeleted    Boolean   @default(false)
+  accountId    String
+  Accounts     Accounts  @relation(fields: [accountId], references: [id])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model PixPayments {
+  id        String    @id
+  key       String
+  keyType   String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime
+  deletedAt DateTime?
+  isDeleted Boolean   @default(false)
+  paymentId String
+  Payments  Payments  @relation(fields: [paymentId], references: [id])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Transactions {
+  id                                                   String      @id
+  type                                                 String
+  amount                                               Int
+  description                                          String
+  createdAt                                            DateTime    @default(now())
+  updatedAt                                            DateTime
+  sourceAccountId                                      String
+  destinationAccountId                                 String
+  Movements                                            Movements[]
+  Accounts_Transactions_destinationAccountIdToAccounts Accounts    @relation("Transactions_destinationAccountIdToAccounts", fields: [destinationAccountId], references: [id])
+  Accounts_Transactions_sourceAccountIdToAccounts      Accounts    @relation("Transactions_sourceAccountIdToAccounts", fields: [sourceAccountId], references: [id])
+}
+
+model Users {
+  id                                        String     @id
+  name                                      String
+  email                                     String     @unique
+  password                                  String
+  createdAt                                 DateTime   @default(now())
+  updatedAt                                 DateTime
+  deletedAt                                 DateTime?
+  isDeleted                                 Boolean    @default(false)
+  phoneNumber                               String
+  documentNumber                            String     @unique @db.VarChar(11)
+  agencyId                                  String
+  accountId                                 String
+  Accounts_Accounts_approvedByUserIdToUsers Accounts[] @relation("Accounts_approvedByUserIdToUsers")
+  Accounts_Users_accountIdToAccounts        Accounts   @relation("Users_accountIdToAccounts", fields: [accountId], references: [id])
+  Agency                                    Agency     @relation(fields: [agencyId], references: [id])
 }
