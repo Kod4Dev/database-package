@@ -17,6 +17,7 @@ jobs:
         with:
           node-version: 24
           registry-url: https://npm.pkg.github.com/
+          scope: '@kod4dev'
 
       - name: Configure GitHub Package Auth
         run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" > ~/.npmrc
