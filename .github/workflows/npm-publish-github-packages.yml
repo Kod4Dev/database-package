@@ -6,16 +6,19 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write   # NECESSÁRIO para publicar em GitHub Packages
 
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          registry-url: 'https://npm.pkg.github.com/'
+          node-version: 18
+          registry-url: https://npm.pkg.github.com/
 
-      - name: Configure auth
+      - name: Configure GitHub Package Auth
         run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" > ~/.npmrc
 
       - run: npm ci
