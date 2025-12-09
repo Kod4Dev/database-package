@@ -1,5 +1,5 @@
 {
-  "name": "@kod4dev/database-package",
+  "name": "@Kod4Dev/database-package",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -14,16 +14,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kod4dev/database-package.git"
+    "url": "git+https://github.com/Kod4Dev/database-package.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "bugs": {
-    "url": "https://github.com/kod4dev/database-package/issues"
+    "url": "https://github.com/Kod4Dev/database-package/issues"
   },
-  "homepage": "https://github.com/kod4dev/database-package#readme",
+  "homepage": "https://github.com/Kod4Dev/database-package#readme",
   "dependencies": {
     "@prisma/client": "^6.19.0",
     "dotenv": "^17.2.3",
