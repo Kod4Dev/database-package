@@ -1,5 +1,5 @@
 {
-  "name": "@kod4dev/database-package",
+  "name": "database-package",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
